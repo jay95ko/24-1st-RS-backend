@@ -61,9 +61,6 @@ class Description(models.Model):
     point_flavor = models.CharField(max_length=200)
     point_side   = models.CharField(max_length=200)
     point_story  = models.CharField(max_length=200)
-    flavor       = models.CharField(max_length=400)
-    side         = models.CharField(max_length=400)
-    story        = models.CharField(max_length=400)
 
     class Meta:
         db_table = "descriptions"
