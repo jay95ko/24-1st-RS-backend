@@ -13,8 +13,8 @@ class Product(models.Model):
     grade       = models.DecimalField()
     category    = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="products")
     brewery     = models.ForeignKey("Brewery", on_delete=models.CASCADE, related_name="products")
-    sidedish    = models.ManyToManyField("Sidedish", on_delete=models.CASCADE, related_name="products", null=True)
-    tag         = models.ManyToManyField("Tag", on_delete=models.CASCADE, related_name="products", null=True)
+    sidedish    = models.ManyToManyField("Sidedish", related_name="products", null=True)
+    tag         = models.ManyToManyField("Tag", related_name="products", null=True)
 
     class Meta:
         db_table = "products"
