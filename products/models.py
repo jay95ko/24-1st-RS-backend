@@ -11,10 +11,10 @@ class Product(models.Model):
     expire_date = models.CharField(max_length=45)
     keep        = models.CharField(max_length=100)
     grade       = models.DecimalField()
-    category    = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="product")
-    brewery     = models.ForeignKey("Brewery", on_delete=models.CASCADE, related_name="product")
-    sidedish    = models.ManyToManyField("Sidedish", on_delete=models.CASCADE, related_name="product", null=True)
-    tag         = models.ManyToManyField("Tag", on_delete=models.CASCADE, related_name="product", null=True)
+    category    = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="products")
+    brewery     = models.ForeignKey("Brewery", on_delete=models.CASCADE, related_name="products")
+    sidedish    = models.ManyToManyField("Sidedish", on_delete=models.CASCADE, related_name="products", null=True)
+    tag         = models.ManyToManyField("Tag", on_delete=models.CASCADE, related_name="products", null=True)
 
     class Meta:
         db_table = "products"
@@ -22,9 +22,9 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class Product_img(models.Model):
-    img_url = models.URLField()
-    product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="img")
+class ProductImage(models.Model):
+    image_url = models.URLField()
+    product   = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="images")
 
     class Meta:
         db_table = "product_imgs"
@@ -35,7 +35,8 @@ class Product_img(models.Model):
 class Category(models.Model):
     name        = models.CharField(max_length=45)
     description = models.CharField(max_length=200)
-    
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "categories"
@@ -46,7 +47,8 @@ class Category(models.Model):
 class Brewery(models.Model):
     name    = models.CharField(max_length=45)
     img_url = models.URLField(null=True)
-    
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "breweries"
@@ -55,7 +57,7 @@ class Brewery(models.Model):
         return self.name
 
 class Description(models.Model):
-    product      = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="description")
+    product      = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="descriptions")
     point_flavor = models.CharField(max_length=200)
     point_side   = models.CharField(max_length=200)
     point_story  = models.CharField(max_length=200)
@@ -70,8 +72,8 @@ class Description(models.Model):
         return self.product.name + "'s description"
 
 class Sidedish(models.Model):
-    name    = models.CharField(max_length=45)
-    img_url = models.URLField(null=True)
+    name      = models.CharField(max_length=45)
+    image_url = models.URLField(null=True)
 
     class Meta:
         db_table = "sidedishes"
@@ -94,7 +96,7 @@ class Flavor(models.Model):
     def __str__(self):
         return self.flavor_name
 
-class Product_Flavor(models.Model):
+class ProductFlavor(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="flavor_relation")
     flavor  = models.ForeignKey("Flavor", on_delete=models.CASCADE, related_name="product_relation")
     point   = models.IntegerField()
@@ -105,10 +107,10 @@ class Product_Flavor(models.Model):
     def __str__(self):
         return self.product.name + self.flavor.flavor_name + "= " + self.point
 
-class Order_item(models.Model):
-    product  = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="order_item")
-    order    = models.ForeignKey("Order", on_delete=models.CASCADE, related_name="order_item")
-    quantity = models.IntegerField()
+class OrderItem(models.Model):
+    product  = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="order_items")
+    order    = models.ForeignKey("Order", on_delete=models.CASCADE, related_name="order_items")
+    quantity = models.IntegerField(default=0)
 
     class Meta:
         db_table = "order_items"
@@ -117,8 +119,9 @@ class Order_item(models.Model):
         return self.product.name + self.quantity +"orders"
 
 class Order(models.Model):
-    user       = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="order")
+    user       = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="orders")
     ordered_at = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "orders"
@@ -127,8 +130,9 @@ class Order(models.Model):
         return self.user.name + "'s order"
 
 class Shipment(models.Model):
-    order         = models.ForeignKey("Order", on_delete=models.CASCADE, related_name="shipment")
+    order         = models.ForeignKey("Order", on_delete=models.CASCADE, related_name="shipments")
     shipmented_at = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "shipments"
