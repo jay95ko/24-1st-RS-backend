@@ -37,15 +37,17 @@ with open(CSV_PATH_PRODUCT) as in_file:
             category = Category.objects.get(name = row[6])
             brewery = Brewery.objects.get(name = row[22])
             Product.objects.create(
-                name        = row[0],
-                dgree       = row[8],
-                ml          = row[9],
-                awards      = row[5],
-                expire_date = row[11],
-                keep        = row[12],
-                grade       = row[4],
-                category    = category,
-                brewery     = brewery,
+                name             = row[0],
+                dgree            = row[8],
+                ml               = row[9],
+                awards           = row[5],
+                expire_date      = row[11],
+                keep             = row[12],
+                grade            = row[4],
+                price            = row[10],
+                tiny_description = row[1]
+                category         = category,
+                brewery          = brewery,
             )
             print("create product " + row[0])
 
