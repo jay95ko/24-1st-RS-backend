@@ -50,3 +50,15 @@ class ProductsMainPageView(View):
                         "image"            : first_image_url,
                     }
                 )
+        
+        #세일하는 주류
+        sale_product         = Product.objects.get(id=15)
+        sale_product_img_url = sale_product.images.all()[:1].get().image_url
+        sale_product = [
+            {
+                "id"               : sale_product.id,
+                "name"             : sale_product.name,
+                "price"            : sale_product.price,
+                "image"            : sale_product_img_url,
+            }
+        ]
