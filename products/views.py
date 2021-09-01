@@ -62,3 +62,27 @@ class ProductsMainPageView(View):
                 "image"            : sale_product_img_url,
             }
         ]
+
+        #인기제품 3가지 list
+        popular_product_list = []
+        popular_products = Product.objects.all().order_by('-grade')[:3]
+        for product in popular_products:
+
+            hash_tag = []
+            for tag in product.tag.all():
+                hash_tag.append(tag.caption)
+
+            first_image_url = product.images.all()[:1].get().image_url
+
+            popular_product_list.append(
+                {
+                    "id"               : product.id,
+                    "name"             : product.name,
+                    "price"            : product.price,
+                    "tiny_description" : product.tiny_description,
+                    "hash"             : hash_tag,
+                    "grade"            : product.grade,
+                    "image"            : first_image_url,
+                }
+            )
+        print(popular_product_list)
