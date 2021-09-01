@@ -23,7 +23,7 @@ class Product(models.Model):
         return self.name
 
 class ProductImage(models.Model):
-    image_url = models.URLField()
+    image_url = models.URLField(max_length=1000)
     product   = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="images")
 
     class Meta:
