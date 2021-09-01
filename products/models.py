@@ -2,19 +2,21 @@ from django.db import models
 
 
 class Product(models.Model):
-    name        = models.CharField(max_length=45)
-    dgree       = models.DecimalField(max_digits=3, decimal_places=1)
-    ml          = models.IntegerField()
-    awards      = models.CharField(max_length=45)
-    created_at  = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
-    expire_date = models.CharField(max_length=45)
-    keep        = models.CharField(max_length=100)
-    grade       = models.DecimalField(max_digits=2, decimal_places=1)
-    category    = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="products")
-    brewery     = models.ForeignKey("Brewery", on_delete=models.CASCADE, related_name="products")
-    sidedish    = models.ManyToManyField("Sidedish", related_name="products", blank=True)
-    tag         = models.ManyToManyField("Tag", related_name="products", blank=True)
+    name             = models.CharField(max_length=45)
+    tiny_description = models.CharField(max_length=100, null=True)
+    dgree            = models.DecimalField(max_digits=3, decimal_places=1)
+    ml               = models.IntegerField()
+    awards           = models.CharField(max_length=45)
+    price            = models.IntegerField(default=0)
+    created_at       = models.DateTimeField(auto_now_add=True)
+    updated_at       = models.DateTimeField(auto_now=True)
+    expire_date      = models.CharField(max_length=45)
+    keep             = models.CharField(max_length=100)
+    grade            = models.DecimalField(max_digits=2, decimal_places=1)
+    category         = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="products")
+    brewery          = models.ForeignKey("Brewery", on_delete=models.CASCADE, related_name="products")
+    sidedish         = models.ManyToManyField("Sidedish", related_name="products", blank=True)
+    tag              = models.ManyToManyField("Tag", related_name="products", blank=True)
 
     class Meta:
         db_table = "products"
