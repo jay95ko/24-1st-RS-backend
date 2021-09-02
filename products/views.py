@@ -3,7 +3,7 @@ from django.core.exceptions import FieldError
 
 from django.http import JsonResponse
 from django.views import View
-from django.db.models import Q
+from django.db.models import Q, query
 
 from .models import Category, Product, ProductFlavor
 
@@ -122,7 +122,7 @@ class DetailView(View):
 class ProductView(View):
     def get(self, request, product_id):
         try:
-            product      = Product.objects.get(id=product_id)
+            product      = Product.objects.filter(id=product_id)
             product_info = MakingList(product)
             return JsonResponse({"Result": product_info}, status=200)
 
@@ -136,14 +136,17 @@ class ProductListView(View):
             #created_at, grade, price
             OFFSET   = int(request.GET.get("offset", 0))
             LIMIT    = int(request.GET.get("limit", 2))
-            CATEGORY = request.GET.get("category")
+            CATEGORIES = request.GET.get("category")
             RANDOM   = request.GET.get("random", False)
 
             products = Product.objects.all().order_by(ORDER_BY)
 
-            if CATEGORY:
-                category = Category.objects.get(name = CATEGORY)
-                products = products.filter(category = category)
+            if CATEGORIES:
+                query = Q()
+                for CATEGORY in CATEGORIES.split(","):
+                    category = Category.objects.get(name = CATEGORY)
+                    query |= Q(category = category)
+                products = products.filter(query)
 
             if RANDOM:
                 products_queryset  = []
