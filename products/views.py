@@ -8,16 +8,13 @@ from django.db.models import Q, query
 from .models import Category, Product, ProductFlavor
 
 def MakingList(queryset):
-    list = []
+    res_list = []
     for product in queryset:
 
-        hash_tag = []
-        for tag in product.tag.all():
-            hash_tag.append(tag.caption)
-
+        hash_tag        = list(product.tag.all().values("caption"))
         first_image_url = product.images.all()[:1].get().image_url
 
-        list.append(
+        res_list.append(
             {
                 "id"               : product.id,
                 "name"             : product.name,
@@ -34,18 +31,15 @@ def MakingList(queryset):
                 "category_name"    : product.category.name,
             }
         )
-    return list
+    return res_list
 
 class ImageListView(View):
     def get(self, request, product_id):
         try:
-            product = Product.objects.get(id=product_id)
 
-            images_queryset = product.images.all()
-            images          = []
-            for image in images_queryset:
-                images.append(image.image_url)
+            images = list(Product.objects.get(id=product_id).images.all().values("image_url"))
             return JsonResponse({"Result": images}, status=200)
+
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
 
@@ -80,6 +74,7 @@ class FlavorListView(View):
                         "point"            : product_flavor.point,
                     }
                 )
+
             return JsonResponse({"Result": flavors}, status=200)
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
@@ -87,17 +82,9 @@ class FlavorListView(View):
 class SidedishListView(View):
     def get(self, request, product_id):
         try:
-            product = Product.objects.get(id=product_id)
-
-            sidedishs_queryset = product.sidedish.all()
-            sidedishs          = []
-            for sidedish in sidedishs_queryset:
-                sidedishs.append(
-                    {
-                        "name"      : sidedish.name,
-                        "image_url" : sidedish.image_url,
-                    }
-                )
+            product   = Product.objects.get(id=product_id)
+            sidedishs = list(product.sidedish.all().values("name", "image_url"))
+            
             return JsonResponse({"Result": sidedishs}, status=200)
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
@@ -105,20 +92,13 @@ class SidedishListView(View):
 class DetailView(View):
     def get(self, request, product_id):
         try:
-            product = Product.objects.get(id=product_id)
 
-            detailes = []
-            detailes.append(
-                {
-                "flavor" : product.descriptions.get().point_flavor,
-                "side"   : product.descriptions.get().point_side,
-                "story"  : product.descriptions.get().point_story,
-                    }
-                )
+            detailes = list(Product.objects.get(id=product_id).descriptions.all().values("point_flavor", "point_side", "point_story"))
             return JsonResponse({"Result": detailes}, status=200)
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+
 class ProductView(View):
     def get(self, request, product_id):
         try:
