@@ -35,22 +35,12 @@ class SignupView(View):
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             decoded_hashed_password = hashed_password.decode('utf-8')
 
-            if data['smscheck']   == 'on':
-                is_sms_agree      = 'True'
-            else:
-                is_sms_agree      = 'False'
-                
-            if data['emailcheck'] == 'on':
-                is_email_agree    = 'True'
-            else:
-                is_email_agree    = 'False'
-
             User.objects.create(
                 name           = data['name'],
                 email          = data['email'],
                 password       = decoded_hashed_password,
-                is_sms_agree   = is_sms_agree,
-                is_email_agree = is_email_agree,
+                is_sms_agree   = data['is_sms_agree'],
+                is_email_agree = data['is_email_agree'],
             )
             return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
