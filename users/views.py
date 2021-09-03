@@ -6,6 +6,7 @@ from django.views import View
 
 from users.models import User
 from my_settings import SECRET_KEY, ALGORITHM
+from users.decorator import login_decorator
 
 class SignupView(View):
     def post(self, request):
