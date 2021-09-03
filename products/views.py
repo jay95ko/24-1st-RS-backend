@@ -92,3 +92,13 @@ class DetailView(View):
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+
+class ProductView(View):
+    def get(self, request, product_id):
+        try:
+            product      = Product.objects.filter(id=product_id)
+            product_info = MakingList(product)
+            return JsonResponse({"Result": product_info}, status=200)
+
+        except Product.DoesNotExist:
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
