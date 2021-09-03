@@ -6,7 +6,6 @@ from django.views import View
 
 from users.models import User
 from my_settings import SECRET_KEY, ALGORITHM
-# from users.decorator import login_decorator
 
 class SignupView(View):
     def post(self, request):
@@ -66,8 +65,3 @@ class LoginView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
-
-# @login_decorator
-# def test():
-#     print("good")
-
