@@ -8,17 +8,16 @@ from django.db.models import Q
 from .models import Category, Product, ProductFlavor, ProductImage, Brewery, Sidedish
 
 def MakingList(queryset):
-    res_list = []
+    result = []
     for product in queryset:
 
         hash_tag        = list(product.tag.all().values("caption"))
         first_image_url = product.images.all()[:1].get().image_url
-
-        res_list.append(
+        result.append(
             {
                 "id"               : product.id,
                 "name"             : product.name,
-                "price"            : product.price,
+                "price"            : format(product.price, ","),
                 "dgree"            : product.dgree,
                 "ml"               : product.ml,
                 "awards"           : product.awards,
@@ -31,13 +30,13 @@ def MakingList(queryset):
                 "category_name"    : product.category.name,
             }
         )
-    return res_list
+    return result
 
 class ImageListView(View):
     def get(self, request, product_id):
         try:
-            images = list(ProductImage.objects.filter(product_id = product_id).values("image_url"))
-            return JsonResponse({"Result": images}, status=200)
+            result = list(ProductImage.objects.filter(product_id = product_id).values("image_url"))
+            return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
@@ -45,14 +44,9 @@ class ImageListView(View):
 class BreweryView(View):
     def get(self, request, product_id):
         try:
-            breweries = []
-            breweries.append(
-                {
-                    "brewery_name" : Brewery.objects.get(products = product_id).name,
-                    "brewery_image": Brewery.objects.get(products = product_id).img_url,
-                    }
-                )
-            return JsonResponse({"Result": breweries}, status=200)
+            brewery = Brewery.objects.get(products__id = product_id)
+            result  = {"brewery_name" : brewery.name, "brewery_image": brewery.img_url}
+            return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
@@ -60,26 +54,19 @@ class BreweryView(View):
 class FlavorListView(View):
     def get(self, request, product_id):
         try:
-            products_flavors_queryset = ProductFlavor.objects.filter(product_id=product_id)
-            flavors                   = []
-            for product_flavor in products_flavors_queryset:
-                flavors.append(
-                    {
-                        "flavor_name"      : product_flavor.flavor.flavor_name,
-                        "point"            : product_flavor.point,
-                    }
-                )
+            flavors = ProductFlavor.objects.filter(product_id=product_id)
+            result = list({"flavor_name" : flavor.flavor.flavor_name, "point" : flavor.point} for flavor in flavors)
+            return JsonResponse({"Result": result}, status=200)
 
-            return JsonResponse({"Result": flavors}, status=200)
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
 
 class SidedishListView(View):
     def get(self, request, product_id):
         try:
-            sidedishs = list(Sidedish.objects.filter(products = product_id).values("name", "image_url"))
-            
-            return JsonResponse({"Result": sidedishs}, status=200)
+            result = list(Sidedish.objects.filter(products = product_id).values("name", "image_url"))
+            return JsonResponse({"Result": result}, status=200)
+
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
 
@@ -87,8 +74,8 @@ class DetailView(View):
     def get(self, request, product_id):
         try:
 
-            detailes = list(Product.objects.get(id=product_id).descriptions.all().values("point_flavor", "point_side", "point_story"))
-            return JsonResponse({"Result": detailes}, status=200)
+            result = list(Product.objects.get(id=product_id).descriptions.all().values("point_flavor", "point_side", "point_story"))
+            return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
@@ -96,9 +83,9 @@ class DetailView(View):
 class ProductView(View):
     def get(self, request, product_id):
         try:
-            product      = Product.objects.filter(id=product_id)
-            product_info = MakingList(product)
-            return JsonResponse({"Result": product_info}, status=200)
+            product = Product.objects.filter(id=product_id)
+            result  = MakingList(product)
+            return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
@@ -106,26 +93,25 @@ class ProductView(View):
 class ProductListView(View):
     def get(self, request):
         try:
-            ORDER_BY = request.GET.get("order_by", "id")
-            #created_at, grade, price
-            OFFSET   = int(request.GET.get("offset", 0))
-            LIMIT    = int(request.GET.get("limit", 2))
+            ORDER_BY   = request.GET.get("order-by", "id")
+            OFFSET     = int(request.GET.get("offset", 0))
+            LIMIT      = int(request.GET.get("limit", 2))
             CATEGORIES = request.GET.get("category")
-            RANDOM   = request.GET.get("random", False)
-
-            products = Product.objects.all().order_by(ORDER_BY)
+            RANDOM     = bool(request.GET.get("random"))
+            MIN_PRICE  = request.GET.get("min-price", 0)
+            MAX_PRICE  = request.GET.get("max-price", 1000000)
+            DEGREES    = request.GET.get("degree")
+            products   = Product.objects.all().order_by(ORDER_BY)
 
             if CATEGORIES:
                 query = Q()
                 for CATEGORY in CATEGORIES.split(","):
-                    category = Category.objects.get(name = CATEGORY)
-                    query |= Q(category = category)
+                    query |= Q(category__name = CATEGORY)
                 products = products.filter(query)
 
             if RANDOM:
                 products_queryset  = []
                 random_number_list = []
-
                 for num in range(0,LIMIT):
                     random_number = random.randint(0,products.count()-1)
 
@@ -134,12 +120,23 @@ class ProductListView(View):
 
                     random_number_list.append(random_number)
                     products_queryset.append(products[random_number])
+                result = MakingList(products_queryset)
+                return JsonResponse({"Result": result}, status=200)
 
-            else:
-                products_queryset = products[OFFSET:OFFSET+LIMIT]
+            if DEGREES:
+                query = Q()
+                for DEGREE in DEGREES.split(","):
+                    print(DEGREE)
+                    query |= (Q(dgree__gte = int(DEGREE)-10) & Q(dgree__lte = int(DEGREE)))
+                products = products.filter(query)
 
-            products_info = MakingList(products_queryset)
-            return JsonResponse({"Result": products_info}, status=200)
+            query = Q(price__gte = MIN_PRICE) & Q(price__lte = MAX_PRICE)
+            products = products.filter(query)
+
+            products_queryset = products[OFFSET:OFFSET+LIMIT]
+
+            result = MakingList(products_queryset)
+            return JsonResponse({"Result": result}, status=200)
 
         except FieldError:
             return JsonResponse({"Result": "ORDER_BY_ERROR"}, status=400)
