@@ -6,6 +6,7 @@ from django.views import View
 
 from users.models import User
 from my_settings import SECRET_KEY, ALGORITHM
+# from users.decorator import login_decorator
 
 class SignupView(View):
     def post(self, request):
@@ -40,8 +41,8 @@ class SignupView(View):
                 name           = data['name'],
                 email          = data['email'],
                 password       = decoded_hashed_password,
-                is_sms_agree   = data['is_sms_agree'],
-                is_email_agree = data['is_email_agree'],
+                is_sms_agree   = data['smscheck'],
+                is_email_agree = data['emailcheck'],
             )
             return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
@@ -65,3 +66,8 @@ class LoginView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+
+# @login_decorator
+# def test():
+#     print("good")
+

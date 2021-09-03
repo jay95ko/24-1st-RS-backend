@@ -1,4 +1,3 @@
-from django.core import exceptions
 import jwt, json, requests
 
 from django.http import JsonResponse
@@ -19,7 +18,7 @@ def login_decorator(func):
             return JsonResponse({'MESSAGE':'INVALID_TOKEN'}, status=400)
         
         except User.DoesNotExist:
-            return JsonResponse({'MESSAGE':'INVALID_TOKEN'}, status=400)
+            return JsonResponse({'MESSAGE':'INVALID_USER'}, status=400)
 
         return func(self, request, *args, **kwargs)
     return wrapper
