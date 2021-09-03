@@ -1,9 +1,9 @@
 import random
-from django.core.exceptions import FieldError
 
+from django.core.exceptions import FieldError
 from django.http import JsonResponse
 from django.views import View
-from django.db.models import Q, query
+from django.db.models import Q
 
 from .models import Category, Product, ProductFlavor, ProductImage, Brewery, Sidedish
 
