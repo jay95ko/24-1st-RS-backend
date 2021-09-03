@@ -9,4 +9,5 @@ urlpatterns = [
     path("/<int:product_id>/sidedishes", SidedishListView.as_view()),
     path("/<int:product_id>/flavors", FlavorListView.as_view()),
     path("/<int:product_id>/brewery", BreweryView.as_view()),
+    path("/list", ProductListView.as_view()),
 ]
