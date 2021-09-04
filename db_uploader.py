@@ -14,9 +14,8 @@ with open(CSV_PATH_PRODUCT) as in_file:
     data_reader = csv.reader(in_file)
     next(data_reader, None)
     for row in data_reader:
-
         if not Category.objects.filter(name = row[6]):
-            Category.objects.create(name = row[6], description = row[7])
+            Category.objects.create(name = row[6], description = row[7], image_url = row[37])
             print("Create category " + row[22])
 
         if not Brewery.objects.filter(name = row[22]):

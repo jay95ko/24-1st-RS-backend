@@ -5,14 +5,14 @@ from django.http import JsonResponse
 from django.views import View
 from django.db.models import Q
 
-from .models import Category, Product, ProductFlavor, ProductImage, Brewery, Sidedish
+from .models import Category, Description, Product, ProductFlavor, ProductImage, Brewery, Sidedish
 
 def MakingList(queryset):
     result = []
-    for product in queryset:
-
-        hash_tag        = list(product.tag.all().values("caption"))
-        first_image_url = product.images.all()[:1].get().image_url
+    products = queryset.select_related("category", "brewery").prefetch_related("images", "tag")
+    for product in products:
+        hash_tag     = [{"caption" : tag.caption} for tag in product.tag.all()]
+        image_url    = product.images.all()[0].image_url
         result.append(
             {
                 "id"               : product.id,
@@ -24,7 +24,7 @@ def MakingList(queryset):
                 "tiny_description" : product.tiny_description,
                 "hash"             : hash_tag,
                 "grade"            : product.grade,
-                "image"            : first_image_url,
+                "image"            : image_url,
                 "expire_date"      : product.expire_date,
                 "keep"             : product.keep,
                 "category_name"    : product.category.name,
@@ -35,7 +35,7 @@ def MakingList(queryset):
 class ImageListView(View):
     def get(self, request, product_id):
         try:
-            result = list(ProductImage.objects.filter(product_id = product_id).values("image_url"))
+            result = [ProductImage.objects.filter(product_id = product_id).values("image_url")]
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -54,8 +54,8 @@ class BreweryView(View):
 class FlavorListView(View):
     def get(self, request, product_id):
         try:
-            flavors = ProductFlavor.objects.filter(product_id=product_id)
-            result = list({"flavor_name" : flavor.flavor.flavor_name, "point" : flavor.point} for flavor in flavors)
+            flavors = ProductFlavor.objects.select_related("flavor").filter(product_id=product_id)
+            result  = [{"flavor_name" : flavor.flavor.flavor_name, "point" : flavor.point} for flavor in flavors]
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -64,7 +64,7 @@ class FlavorListView(View):
 class SidedishListView(View):
     def get(self, request, product_id):
         try:
-            result = list(Sidedish.objects.filter(products = product_id).values("name", "image_url"))
+            result = [Sidedish.objects.filter(products = product_id).values("name", "image_url")]
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -73,8 +73,7 @@ class SidedishListView(View):
 class DetailView(View):
     def get(self, request, product_id):
         try:
-
-            result = list(Product.objects.get(id=product_id).descriptions.all().values("point_flavor", "point_side", "point_story"))
+            result = [Description.objects.filter(product__id = product_id).values("point_flavor", "point_side", "point_story")]
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -146,3 +145,26 @@ class ProductListView(View):
 
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+
+class CategoryView(View):
+    def get(self, request, category):
+        try:
+            category = Category.objects.get(name__istartswith=category)
+
+            if category.name == "약주" or category.name == "청주":
+                result = {
+                    "name"        : "약·청주",
+                    "description" : category.description,
+                    "image_url"   : category.image_url,
+                }
+                return JsonResponse({"Result": result}, status=200)
+            
+            result = {
+                    "name"        : category.name,
+                    "description" : category.description,
+                    "image_url"   : category.image_url,
+                }
+            return JsonResponse({"Result": result}, status=200)
+
+        except Category.DoesNotExist:
+            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=400)
