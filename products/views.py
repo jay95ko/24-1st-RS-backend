@@ -8,13 +8,8 @@ from django.db.models import Q
 from .models import Category, Description, Product, ProductFlavor, ProductImage, Brewery, Sidedish
 
 def MakingList(queryset):
-    result = []
     products = queryset.select_related("category", "brewery").prefetch_related("images", "tag")
-    for product in products:
-        hash_tag     = [{"caption" : tag.caption} for tag in product.tag.all()]
-        image_url    = product.images.all()[0].image_url
-        result.append(
-            {
+    result   = [{
                 "id"               : product.id,
                 "name"             : product.name,
                 "price"            : format(product.price, ","),
@@ -22,14 +17,13 @@ def MakingList(queryset):
                 "ml"               : product.ml,
                 "awards"           : product.awards,
                 "tiny_description" : product.tiny_description,
-                "hash"             : hash_tag,
+                "hash"             : [{"caption" : tag.caption} for tag in product.tag.all()],
                 "grade"            : product.grade,
-                "image"            : image_url,
+                "image"            : product.images.all()[0].image_url,
                 "expire_date"      : product.expire_date,
                 "keep"             : product.keep,
                 "category_name"    : product.category.name,
-            }
-        )
+            } for product in products]
     return result
 
 class ImageListView(View):
