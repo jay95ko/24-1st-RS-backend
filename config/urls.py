@@ -14,8 +14,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path, include
-from users.views import SignupView
 
 urlpatterns = [
-    path('users', include('users.urls'))
+    path('users', include('users.urls')),
+    path('carts', include('carts.urls')),
 ]
