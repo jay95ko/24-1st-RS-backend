@@ -30,7 +30,7 @@ def MakingList(queryset):
 class ImageListView(View):
     def get(self, request, product_id):
         try:
-            result = [ProductImage.objects.filter(product_id = product_id).values("image_url")]
+            result = list(ProductImage.objects.filter(product_id = product_id).values("image_url"))
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -59,7 +59,7 @@ class FlavorListView(View):
 class SidedishListView(View):
     def get(self, request, product_id):
         try:
-            result = [Sidedish.objects.filter(products = product_id).values("name", "image_url")]
+            result = list(Sidedish.objects.filter(products = product_id).values("name", "image_url"))
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -68,7 +68,7 @@ class SidedishListView(View):
 class DetailView(View):
     def get(self, request, product_id):
         try:
-            result = [Description.objects.filter(product__id = product_id).values("point_flavor", "point_side", "point_story")]
+            result = list(Description.objects.filter(product__id = product_id).values("point_flavor", "point_side", "point_story"))
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
