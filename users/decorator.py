@@ -1,7 +1,6 @@
 import jwt, json, requests
 
 from django.http import JsonResponse
-from django.core.exceptions import ObjectDoesNotExist
 
 from my_settings import ALGORITHM, SECRET_KEY
 from users.models import User
