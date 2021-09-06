@@ -48,6 +48,7 @@ class ProductListView(View):
             MIN_PRICE  = request.GET.get("min-price", 0)
             MAX_PRICE  = request.GET.get("max-price", 1000000)
             DEGREES    = request.GET.get("degree")
+            SIDEDISH   = request.GET.get("side-dish")
             products   = Product.objects.all().order_by(ORDER_BY)
 
             if CATEGORIES:
@@ -76,7 +77,10 @@ class ProductListView(View):
                     print(DEGREE)
                     query |= (Q(dgree__gte = int(DEGREE)-10) & Q(dgree__lte = int(DEGREE)))
                 products = products.filter(query)
-
+            
+            if SIDEDISH:
+                products = products.filter(sidedish__name__contains = SIDEDISH)
+                
             query = Q(price__gte = MIN_PRICE) & Q(price__lte = MAX_PRICE)
             products = products.filter(query)
 
