@@ -8,7 +8,7 @@ from django.db.models import Q
 from .models import Category, Description, Product, ProductFlavor, ProductImage, Brewery, Sidedish
 
 def MakingList(queryset):
-    products = queryset.select_related("category", "brewery").prefetch_related("images", "tag")
+    products = queryset.select_related("category", "brewery").prefetch_related("images", "tag", "sidedish")
     result   = [{
                 "id"               : product.id,
                 "name"             : product.name,
@@ -23,6 +23,7 @@ def MakingList(queryset):
                 "expire_date"      : product.expire_date,
                 "keep"             : product.keep,
                 "category_name"    : product.category.name,
+                "side_dish"        : [{"name" : sidedish.name, "image_url" : sidedish.image_url} for sidedish in product.sidedish.all()],
             } for product in products]
     return result
 
@@ -143,11 +144,13 @@ class ProductListView(View):
 class CategoryView(View):
     def get(self, request, category):
         try:
+            if category.startswith("약주") or category.endswith("청주"):
+                category = "약주"
             category = Category.objects.get(name__istartswith=category)
 
             if category.name == "약주" or category.name == "청주":
                 result = {
-                    "name"        : "약·청주",
+                    "name"        : "약주,청주",
                     "description" : category.description,
                     "image_url"   : category.image_url,
                 }
