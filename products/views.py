@@ -42,7 +42,7 @@ class ProductListView(View):
         try:
             ORDER_BY   = request.GET.get("order-by", "id")
             OFFSET     = int(request.GET.get("offset", 0))
-            LIMIT      = int(request.GET.get("limit", 2))
+            LIMIT      = int(request.GET.get("limit", 10))
             CATEGORIES = request.GET.get("category")
             RANDOM     = bool(request.GET.get("random"))
             MIN_PRICE  = request.GET.get("min-price", 0)
