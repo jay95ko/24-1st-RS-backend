@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from .models import Category, Product
 
-def MakingList(queryset):
+def make_list(queryset):
     products = queryset.select_related("category", "brewery").prefetch_related("images", "tag", "sidedish")
     result   = [{
                 "id"               : product.id,
@@ -31,7 +31,7 @@ class ProductView(View):
     def get(self, request, product_id):
         try:
             product = Product.objects.filter(id=product_id)
-            result  = MakingList(product)
+            result  = make_list(product)
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
@@ -53,29 +53,18 @@ class ProductListView(View):
 
             if CATEGORIES:
                 query = Q()
-                for CATEGORY in CATEGORIES.split(","):
-                    query |= Q(category__name = CATEGORY)
+                [query.add(Q(category__name = CATEGORY), query.OR) for CATEGORY in CATEGORIES.split(",")]
                 products = products.filter(query)
 
             if RANDOM:
-                products_queryset  = []
-                random_number_list = []
-                for num in range(0,LIMIT):
-                    random_number = random.randint(0,products.count()-1)
+                products_queryset = products.order_by("?")[:LIMIT]
+                result = make_list(products_queryset)
 
-                    while random_number in random_number_list:
-                        random_number = random.randint(0,products.count()-1)
-
-                    random_number_list.append(random_number)
-                    products_queryset.append(products[random_number])
-                result = MakingList(products_queryset)
                 return JsonResponse({"Result": result}, status=200)
 
             if DEGREES:
                 query = Q()
-                for DEGREE in DEGREES.split(","):
-                    print(DEGREE)
-                    query |= (Q(dgree__gte = int(DEGREE)-10) & Q(dgree__lte = int(DEGREE)))
+                [query.add(Q(dgree__gte = int(DEGREE)-10) & Q(dgree__lte = int(DEGREE)), query.OR) for DEGREE in DEGREES.split(",")]
                 products = products.filter(query)
             
             if SIDEDISH:
@@ -86,7 +75,7 @@ class ProductListView(View):
 
             products_queryset = products[OFFSET:OFFSET+LIMIT]
 
-            result = MakingList(products_queryset)
+            result = make_list(products_queryset)
             return JsonResponse({"Result": result}, status=200)
 
         except FieldError:
