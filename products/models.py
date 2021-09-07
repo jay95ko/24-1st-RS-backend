@@ -37,6 +37,7 @@ class ProductImage(models.Model):
 class Category(models.Model):
     name        = models.CharField(max_length=45)
     description = models.CharField(max_length=200)
+    image_url   = models.URLField(max_length=1000)
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
 
@@ -118,9 +119,12 @@ class OrderItem(models.Model):
         return self.product.name + self.quantity +"orders"
 
 class Order(models.Model):
-    user       = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="orders")
-    ordered_at = models.DateTimeField(auto_now_add=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    user         = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="orders")
+    ordered_at   = models.DateTimeField(auto_now_add=True)
+    updated_at   = models.DateTimeField(auto_now=True)
+    address      = models.CharField(max_length=200, default="Seoul")
+    phone_number = models.CharField(max_length=45, default="010-1234-1234")
+    price        = models.IntegerField(default=0)
 
     class Meta:
         db_table = "orders"

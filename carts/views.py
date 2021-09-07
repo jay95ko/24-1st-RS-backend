@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import json
 
 from django.http import JsonResponse
@@ -57,3 +58,5 @@ class CartView(View):
     def get(self, request):
         result = list(Cart.objects.filter(user_id=3).values('user_id','product_id','quantity'))
         return JsonResponse({'RESULT':result}, status=200)
+=======
+>>>>>>> main
