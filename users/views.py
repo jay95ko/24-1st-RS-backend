@@ -50,7 +50,7 @@ class SignupView(View):
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
 
 class LoginView(View):   
-      def post(self, request):
+    def post(self, request):
         try:
             data = json.loads(request.body)
 
@@ -69,3 +69,50 @@ class LoginView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+
+class UserDetailView(View):
+    @login_decorator
+    def get(self, request):
+        user = User.objects.get(id = request.user.id)
+        result = {
+            "name"           : user.name,
+            "email"          : user.email,
+            "is_sms_agree"   : user.is_sms_agree,
+            "is_email_agree" : user.is_email_agree,
+        }
+        return JsonResponse({"Result": result}, status=200)
+    
+    @login_decorator
+    def patch(self, request):
+        try:
+            data = json.loads(request.body)
+
+            password            = data['password']
+            password_validation = re.compile("^.*(?=^.{8,}$)(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%*^&+=]).*$")
+
+            if not data['password']:
+                return JsonResponse({"MESSAGE":"EMPTY_VALUE_ERROR"}, status=400)
+            
+            if not password_validation.match(password):
+                return JsonResponse({"MESSAGE":"PASSWORD_VALIDATION_ERROR"}, status=400)
+
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            decoded_hashed_password = hashed_password.decode('utf-8')
+            
+            user_id = request.user.id
+
+            User.objects.filter(id=user_id).update(
+                password = decoded_hashed_password,
+                is_sms_agree   = data['smscheck'],
+                is_email_agree = data['emailcheck'],
+            )
+            return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
+
+        except KeyError:
+            return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+
+    @login_decorator
+    def delete(self, request):
+        now  = datetime.datetime.now()
+        user = User.objects.filter(id = request.user.id)
+        user.update(deactivated_at = now)
