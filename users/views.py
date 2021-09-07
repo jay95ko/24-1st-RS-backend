@@ -72,7 +72,6 @@ class LoginView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
-<<<<<<< HEAD
 
 class UserActivateView(View):
     def patch(self, request):
@@ -95,5 +94,3 @@ class UserActivateView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
-=======
->>>>>>> main
