@@ -35,7 +35,6 @@ class CartView(View):
         try:
             data = json.loads(request.body)
             count = data['count']
-            delete = data['delete']
             cart = Cart.objects.get(id=id)
             if count == '+':
                 cart.quantity += 1
@@ -43,21 +42,16 @@ class CartView(View):
             if count == '-' and cart.quantity > 1:
                 cart.quantity -= 1
 
-            if delete:
-                cart.delete()
-                return JsonResponse({'MESSAGE':'DELETE'}, status=201)
-
             return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
         except KeyError:
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
 
     def delete(request, product_id):
-        cart = Cart.objects.get(id=product_id)
+        cart = Cart.objects.get(product_id=25)
         cart.delete()
-        return redirect('url')
-
-
+        # return redirect('url')
+        return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
     #@데코레이터
     def get(self, request):
