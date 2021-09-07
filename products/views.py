@@ -59,7 +59,6 @@ class ProductListView(View):
             if RANDOM:
                 products_queryset = products.order_by("?")[:LIMIT]
                 result = make_list(products_queryset)
-
                 return JsonResponse({"Result": result}, status=200)
 
             if DEGREES:
