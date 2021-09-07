@@ -1,5 +1,6 @@
 import json, re
 import bcrypt, jwt
+import datetime
 
 from django.http import JsonResponse
 from django.views import View
@@ -61,10 +62,35 @@ class LoginView(View):
                 return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
 
             user = User.objects.get(email=data['email'])
+            if not user.deactivated_at:
+                if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                    access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
+                    return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
+                
+                return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
+            
+            return JsonResponse({"MESSAGE":"DEACTIVATE_USER"}, status=401)
+
+        except KeyError:
+            return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+
+class UserActivateView(View):
+    def patch(self, request):
+        try:
+            data = json.loads(request.body)
+
+            if not (data['email'] and data['password']):
+                return JsonResponse({"MESSAGE":"EMPTY_VALUE_ERROR"}, status=400)
+
+            if not User.objects.filter(email=data['email']).exists():
+                return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
+            
+            user = User.objects.get(email=data['email'])
             if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                user.update(deactivated_at = None)
                 access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
-                return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
-        
+                return JsonResponse({"MESSAGE":"SUCCESS_ACTIVATE","ACCESS_TOKEN":access_token}, status=201)
+                
             return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
 
         except KeyError:
@@ -73,7 +99,7 @@ class LoginView(View):
 class UserDetailView(View):
     @login_decorator
     def get(self, request):
-        user = User.objects.get(id = request.user.id)
+        user = request.user
         result = {
             "name"           : user.name,
             "email"          : user.email,
@@ -99,13 +125,11 @@ class UserDetailView(View):
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             decoded_hashed_password = hashed_password.decode('utf-8')
             
-            user_id = request.user.id
+            request.user.password        = decoded_hashed_password
+            request.user. is_sms_agree   = data['smscheck']
+            request.user. is_email_agree = data['emailcheck']
+            request.user.save()
 
-            User.objects.filter(id=user_id).update(
-                password = decoded_hashed_password,
-                is_sms_agree   = data['smscheck'],
-                is_email_agree = data['emailcheck'],
-            )
             return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
         except KeyError:
@@ -114,5 +138,7 @@ class UserDetailView(View):
     @login_decorator
     def delete(self, request):
         now  = datetime.datetime.now()
-        user = User.objects.filter(id = request.user.id)
-        user.update(deactivated_at = now)
+        request.user.deactivated_at = now
+        request.user.save()
+
+        return JsonResponse({'MESSAGE':'SUCCESS'}, status=200)
