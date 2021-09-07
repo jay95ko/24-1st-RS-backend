@@ -15,7 +15,7 @@ class CategoryView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Category.DoesNotExist:
-            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=404)
 
 class CategoryListView(View):
     def get(self, request):
@@ -30,4 +30,4 @@ class CategoryListView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Category.DoesNotExist:
-            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=404)
