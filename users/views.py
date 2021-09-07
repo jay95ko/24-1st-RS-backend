@@ -69,3 +69,25 @@ class LoginView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+
+class UserActivateView(View):
+    def patch(self, request):
+        try:
+            data = json.loads(request.body)
+
+            if not (data['email'] and data['password']):
+                return JsonResponse({"MESSAGE":"EMPTY_VALUE_ERROR"}, status=400)
+
+            if not User.objects.filter(email=data['email']).exists():
+                return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
+            
+            user = User.objects.get(email=data['email'])
+            if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                user.update(deactivated_at = None)
+                access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
+                return JsonResponse({"MESSAGE":"SUCCESS_ACTIVATE","ACCESS_TOKEN":access_token}, status=201)
+                
+            return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
+
+        except KeyError:
+            return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
