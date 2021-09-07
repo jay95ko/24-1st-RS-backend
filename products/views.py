@@ -44,7 +44,7 @@ class ProductListView(View):
             products   = Product.objects.all().order_by(ORDER_BY)
 
             if CATEGORIES:
-                products = products.filter(category__name__in=CATEGORIES.split(","))
+                products = products.filter(category__id__in=CATEGORIES.split(","))
 
             if DEGREES:
                 query = Q()
