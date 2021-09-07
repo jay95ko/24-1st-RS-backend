@@ -6,6 +6,7 @@ from django.views import View
 
 from users.models import User
 from my_settings import SECRET_KEY, ALGORITHM
+from users.decorator import login_decorator
 
 class SignupView(View):
     def post(self, request):
@@ -63,7 +64,7 @@ class LoginView(View):
             if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
                 access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
                 return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
-            
+        
             return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
 
         except KeyError:
