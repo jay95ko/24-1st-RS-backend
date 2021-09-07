@@ -50,7 +50,7 @@ class SignupView(View):
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
 
 class LoginView(View):   
-      def post(self, request):
+    def post(self, request):
         try:
             data = json.loads(request.body)
 
@@ -61,14 +61,18 @@ class LoginView(View):
                 return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
 
             user = User.objects.get(email=data['email'])
-            if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
-                access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
-                return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
-        
-            return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
+            if not user.deleted_at:
+                if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
+                    access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
+                    return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
+                
+                return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
+            
+            return JsonResponse({"MESSAGE":"DEACTIVATE_USER"}, status=401)
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+<<<<<<< HEAD
 
 class UserActivateView(View):
     def patch(self, request):
@@ -91,3 +95,5 @@ class UserActivateView(View):
 
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
+=======
+>>>>>>> main
