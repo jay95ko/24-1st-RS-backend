@@ -36,7 +36,7 @@ class ProductListView(View):
             ORDER_BY   = request.GET.get("order-by", "id")
             OFFSET     = int(request.GET.get("offset", 0))
             LIMIT      = int(request.GET.get("limit", 10))
-            CATEGORIES = request.GET.getlist("category")
+            CATEGORIES = request.GET.get("category")
             MIN_PRICE  = request.GET.get("min-price", 0)
             MAX_PRICE  = request.GET.get("max-price", 1000000)
             DEGREES    = request.GET.get("degree")
@@ -44,7 +44,7 @@ class ProductListView(View):
             products   = Product.objects.all().order_by(ORDER_BY)
 
             if CATEGORIES:
-                products = products.filter(category__name__in=CATEGORIES)
+                products = products.filter(category__name__in=CATEGORIES.split(","))
 
             if DEGREES:
                 query = Q()
