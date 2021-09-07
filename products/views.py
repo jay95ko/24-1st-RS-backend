@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views import View
 from django.db.models import Q
 
-from .models import Product, Description, ProductFlavor, ProductImage, Brewery, Sidedish
+from .models import Product, Description, ProductFlavor, ProductImage, Brewery, Sidedish, Category
 
 class ProductView(View):
     def get(self, request, product_id):
@@ -124,4 +124,33 @@ class DetailView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
-            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+
+class CategoryView(View):
+    def get(self, request, category_id):
+        try:
+            category = Category.objects.get(id=category_id)
+            result = {
+                    "name"        : category.name,
+                    "description" : category.description,
+                    "image_url"   : category.image_url,
+                }
+            return JsonResponse({"Result": result}, status=200)
+
+        except Category.DoesNotExist:
+            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=404)
+
+class CategoryListView(View):
+    def get(self, request):
+        try:
+            categories = Category.objects.all()
+            result = [{
+                    "id"          : category.id,
+                    "name"        : category.name,
+                    "description" : category.description,
+                    "image_url"   : category.image_url,
+                } for category in categories]
+            return JsonResponse({"Result": result}, status=200)
+
+        except Category.DoesNotExist:
+            return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=404)
