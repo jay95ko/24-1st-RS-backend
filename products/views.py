@@ -11,6 +11,7 @@ class CategoryView(View):
                 category = Category.objects.get(name__istartswith=category)
 
                 result = {
+                    "id"          : "5,6",
                     "name"        : "약주,청주",
                     "description" : category.description,
                     "image_url"   : category.image_url,
@@ -19,6 +20,7 @@ class CategoryView(View):
             
             category = Category.objects.get(name__istartswith=category)
             result = {
+                    "id"          : category.id,
                     "name"        : category.name,
                     "description" : category.description,
                     "image_url"   : category.image_url,
