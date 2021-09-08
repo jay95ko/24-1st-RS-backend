@@ -178,13 +178,14 @@ class OrderView(View):
                 phone_number = PHONE_NUMBER
             )
 
-            for item in order_item:
-                OrderItem.objects.create(
+            order_item_list = [OrderItem(
                     product_id = item["product_id"],
                     order      = order,
                     quantity   = item["quantity"],
                     price      = (order_products.get(id = item["product_id"]).price * item["quantity"])
-                )
+                ) for item in order_item]
+
+            OrderItem.objects.bulk_create(order_item_list)
 
             order.price = order.order_items.all().aggregate(Sum("price"))["price__sum"]
             order.save()
