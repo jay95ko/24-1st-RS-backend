@@ -1,9 +1,12 @@
+import json
+
 from django.core.exceptions import FieldError
 from django.http import JsonResponse
 from django.views import View
-from django.db.models import Q
+from django.db.models import Q, Sum
 
-from .models import Product, Description, ProductFlavor, ProductImage, Brewery, Sidedish, Category
+from .models import Product, Description, ProductFlavor, ProductImage, Brewery, Sidedish, Category, OrderItem, Order
+from users.decorator import login_decorator
 
 class ProductView(View):
     def get(self, request, product_id):
@@ -25,6 +28,8 @@ class ProductView(View):
                 "category_name"    : product.category.name,
                 "side_dish"        : [{"name" : sidedish.name, "image_url" : sidedish.image_url} for sidedish in product.sidedish.all()],
             }
+        except Product.DoesNotExist:
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
 
 class ProductListView(View):
     def get(self, request):
@@ -152,3 +157,39 @@ class CategoryListView(View):
 
         except Category.DoesNotExist:
             return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=404)
+
+class OrderView(View):
+    @login_decorator
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+
+            ADDRESS      = data["address"]
+            PHONE_NUMBER = data["phone_number"]
+            order_item  = data["order_items"]
+
+            order_product_list = [item["product_id"] for item in order_item]
+            print("==========1===============")
+            order_products = Product.objects.filter(id__in = order_product_list)
+            print("==========2===============")
+            order = Order.objects.create(
+                user         = request.user,
+                address      = ADDRESS,
+                phone_number = PHONE_NUMBER
+            )
+
+            for item in order_item:
+                OrderItem.objects.create(
+                    product_id = item["product_id"],
+                    order      = order,
+                    quantity   = item["quantity"],
+                    price      = (order_products.get(id = item["product_id"]).price * item["quantity"])
+                )
+
+            order.price = order.order_items.all().aggregate(Sum("price"))["price__sum"]
+            order.save()
+
+            return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
+
+        except KeyError:
+            return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)

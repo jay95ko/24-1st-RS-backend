@@ -61,7 +61,7 @@ class LoginView(View):
                 return JsonResponse({"MESSAGE":"INVALID_USER"}, status=401)
 
             user = User.objects.get(email=data['email'])
-            if not user.deleted_at:
+            if not user.deactivated_at:
                 if bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
                     access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
                     return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
