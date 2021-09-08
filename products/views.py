@@ -30,7 +30,7 @@ class ProductView(View):
             }
 
             return JsonResponse({"Result": result}, status=200)
-            
+
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
@@ -171,9 +171,16 @@ class OrderView(View):
             PHONE_NUMBER = data["phone_number"]
             order_item  = data["order_items"]
 
+            """[
+                {
+                    "id" : 1,
+                    "quan.
+                }
+            """
+
             order_product_list = [item["product_id"] for item in order_item]
 
-            order_products = Product.objects.filter(id__in = order_product_list)
+            # order_products = Product.objects.filter(id__in = order_product_list)
 
             order = Order.objects.create(
                 user         = request.user,
@@ -185,7 +192,7 @@ class OrderView(View):
                     product_id = item["product_id"],
                     order      = order,
                     quantity   = item["quantity"],
-                    price      = (order_products.get(id = item["product_id"]).price * item["quantity"])
+                    # price      = (order_products.get(id = item["product_id"]).price * item["quantity"])
                 ) for item in order_item]
 
             OrderItem.objects.bulk_create(order_item_list)
