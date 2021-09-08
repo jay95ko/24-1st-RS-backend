@@ -25,6 +25,9 @@ class ProductView(View):
                 "category_name"    : product.category.name,
                 "side_dish"        : [{"name" : sidedish.name, "image_url" : sidedish.image_url} for sidedish in product.sidedish.all()],
             }
+            
+            return JsonResponse({"Result": result}, status=200)
+        
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
