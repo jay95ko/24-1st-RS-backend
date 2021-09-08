@@ -24,6 +24,7 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+    @classmethod
     def first_image(self):
         image_url = self.images.all()[0].image_url
         return image_url

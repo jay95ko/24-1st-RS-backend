@@ -20,7 +20,7 @@ class CartView(View):
             if not Product.objects.filter(id=product_id).exists():
                 return JsonResponse({"MESSAGE":"DOES_NOT_EXIST_ERROR"}, status=400)
 
-            if Cart.objects.filter(id=product_id).exists():
+            if Cart.objects.filter(product_id=product_id).exists():
                 return JsonResponse({"MESSAGE":"ALREADY_EXIST"}, status=400)
 
             Cart.objects.create(
@@ -57,6 +57,6 @@ class CartView(View):
     @login_decorator
     def get(self, request):
         carts = Cart.objects.select_related("product","product__brewery").filter(user_id=request.user).prefetch_related("product__images")
-        Result = [{"quantity":cart.quantity, "user_name":request.user.name, "product_id":cart.product.id, "product_name":cart.product.name, "product_price":cart.product.price, "image_url":cart.product.first_image()} for cart in carts ]
+        Result = [{"quantity":cart.quantity, "user_name":request.user.name, "product_id":cart.product.id, "product_name":cart.product.name, "product_price":cart.product.price, "image_url":cart.product.first_image} for cart in carts ]
  
         return JsonResponse({'Result':Result}, status=200)
