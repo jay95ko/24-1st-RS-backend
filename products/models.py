@@ -23,6 +23,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def first_image(self):
+        image_url = self.images.all()[0].image_url
+        return image_url
 
 class ProductImage(models.Model):
     image_url = models.URLField(max_length=1000)
