@@ -28,8 +28,11 @@ class ProductView(View):
                 "category_name"    : product.category.name,
                 "side_dish"        : [{"name" : sidedish.name, "image_url" : sidedish.image_url} for sidedish in product.sidedish.all()],
             }
+
+            return JsonResponse({"Result": result}, status=200)
+            
         except Product.DoesNotExist:
-            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
 class ProductListView(View):
     def get(self, request):
@@ -80,7 +83,7 @@ class ProductListView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except FieldError:
-            return JsonResponse({"Result": "ORDER_BY_ERROR"}, status=400)
+            return JsonResponse({"Result": "ORDER_BY_ERROR"}, status=404)
 
 class ImageListView(View):
     def get(self, request, product_id):
@@ -89,7 +92,7 @@ class ImageListView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
-            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
 class BreweryView(View):
     def get(self, request, product_id):
@@ -99,7 +102,7 @@ class BreweryView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
-            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
 class FlavorListView(View):
     def get(self, request, product_id):
@@ -109,7 +112,7 @@ class FlavorListView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
-            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
 class SidedishListView(View):
     def get(self, request, product_id):
@@ -118,7 +121,7 @@ class SidedishListView(View):
             return JsonResponse({"Result": result}, status=200)
 
         except Product.DoesNotExist:
-            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
 class DetailView(View):
     def get(self, request, product_id):
