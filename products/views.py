@@ -169,9 +169,9 @@ class OrderView(View):
             order_item  = data["order_items"]
 
             order_product_list = [item["product_id"] for item in order_item]
-            print("==========1===============")
+
             order_products = Product.objects.filter(id__in = order_product_list)
-            print("==========2===============")
+
             order = Order.objects.create(
                 user         = request.user,
                 address      = ADDRESS,
