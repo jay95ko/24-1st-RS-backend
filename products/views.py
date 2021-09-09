@@ -1,5 +1,6 @@
 import json
 
+from django.db import transaction, IntegrityError
 from django.core.exceptions import FieldError
 from django.http import JsonResponse
 from django.views import View
@@ -163,44 +164,38 @@ class CategoryListView(View):
 
 class OrderView(View):
     @login_decorator
+    @transaction.atomic
     def post(self, request):
         try:
-            data = json.loads(request.body)
+            with transaction.atomic():
+                data = json.loads(request.body)
 
-            ADDRESS      = data["address"]
-            PHONE_NUMBER = data["phone_number"]
-            order_item  = data["order_items"]
+                ADDRESS      = data.get("addredd")
+                PHONE_NUMBER = data.get("phone_number")
+                order_item   = data.get("order_items")
 
-            """[
-                {
-                    "id" : 1,
-                    "quan.
-                }
-            """
+                order, created = Order.objects.filter(Q(user=request.user) & Q(status_code=0)).get_or_create(
+                    user         = request.user,
+                    address      = ADDRESS,
+                    phone_number = PHONE_NUMBER
+                )
 
-            order_product_list = [item["product_id"] for item in order_item]
+                order_item_list = [OrderItem(
+                        product_id = item["product_id"],
+                        order      = order,
+                        quantity   = item["quantity"],
+                        price      = item["price"] * item["quantity"],
+                    ) for item in order_item]
 
-            # order_products = Product.objects.filter(id__in = order_product_list)
+                OrderItem.objects.bulk_create(order_item_list)
 
-            order = Order.objects.create(
-                user         = request.user,
-                address      = ADDRESS,
-                phone_number = PHONE_NUMBER
-            )
+                order.price = order.order_items.all().aggregate(Sum("price"))["price__sum"]
+                order.save()
 
-            order_item_list = [OrderItem(
-                    product_id = item["product_id"],
-                    order      = order,
-                    quantity   = item["quantity"],
-                    # price      = (order_products.get(id = item["product_id"]).price * item["quantity"])
-                ) for item in order_item]
-
-            OrderItem.objects.bulk_create(order_item_list)
-
-            order.price = order.order_items.all().aggregate(Sum("price"))["price__sum"]
-            order.save()
-
-            return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
+                return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
 
         except KeyError:
             return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+
+        except IntegrityError:
+            return JsonResponse({'MESSAGE':'INTEGRITY_ERROR'}, status=400)

@@ -126,6 +126,7 @@ class Order(models.Model):
     address      = models.CharField(max_length=200, default="Seoul")
     phone_number = models.CharField(max_length=45, default="010-1234-1234")
     price        = models.IntegerField(default=0)
+    status_code  = models.IntegerField(default=0)
 
     class Meta:
         db_table = "orders"
