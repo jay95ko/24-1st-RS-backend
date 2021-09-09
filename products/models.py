@@ -111,12 +111,13 @@ class OrderItem(models.Model):
     product  = models.ForeignKey("Product", on_delete=models.CASCADE, related_name="order_items")
     order    = models.ForeignKey("Order", on_delete=models.CASCADE, related_name="order_items")
     quantity = models.IntegerField(default=0)
+    price    = models.IntegerField(default=0)
 
     class Meta:
         db_table = "order_items"
 
     def __str__(self):
-        return self.product.name + self.quantity +"orders"
+        return self.product.name + str(self.quantity) + "orders"
 
 class Order(models.Model):
     user         = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="orders")
@@ -125,6 +126,7 @@ class Order(models.Model):
     address      = models.CharField(max_length=200, default="Seoul")
     phone_number = models.CharField(max_length=45, default="010-1234-1234")
     price        = models.IntegerField(default=0)
+    status_code  = models.IntegerField(default=0)
 
     class Meta:
         db_table = "orders"
