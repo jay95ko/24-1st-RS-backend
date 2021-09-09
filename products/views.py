@@ -1,9 +1,13 @@
+import json
+
+from django.db import transaction, IntegrityError
 from django.core.exceptions import FieldError
 from django.http import JsonResponse
 from django.views import View
-from django.db.models import Q
+from django.db.models import Q, Sum
 
-from .models import Product, Description, ProductFlavor, ProductImage, Brewery, Sidedish, Category
+from .models import Product, Description, ProductFlavor, ProductImage, Brewery, Sidedish, Category, OrderItem, Order
+from users.decorator import login_decorator
 
 class ProductView(View):
     def get(self, request, product_id):
@@ -25,9 +29,9 @@ class ProductView(View):
                 "category_name"    : product.category.name,
                 "side_dish"        : [{"name" : sidedish.name, "image_url" : sidedish.image_url} for sidedish in product.sidedish.all()],
             }
-            
+
             return JsonResponse({"Result": result}, status=200)
-        
+
         except Product.DoesNotExist:
             return JsonResponse({"Result": "PRODUCT_DOES_NOT_EXIST"}, status=404)
 
@@ -157,3 +161,41 @@ class CategoryListView(View):
 
         except Category.DoesNotExist:
             return JsonResponse({"Result": "CATEGORY_DOES_NOT_EXIST"}, status=404)
+
+class OrderView(View):
+    @login_decorator
+    @transaction.atomic
+    def post(self, request):
+        try:
+            with transaction.atomic():
+                data = json.loads(request.body)
+
+                ADDRESS      = data.get("addredd")
+                PHONE_NUMBER = data.get("phone_number")
+                order_item   = data.get("order_items")
+
+                order, created = Order.objects.filter(Q(user=request.user) & Q(status_code=0)).get_or_create(
+                    user         = request.user,
+                    address      = ADDRESS,
+                    phone_number = PHONE_NUMBER
+                )
+
+                order_item_list = [OrderItem(
+                        product_id = item["product_id"],
+                        order      = order,
+                        quantity   = item["quantity"],
+                        price      = item["price"] * item["quantity"],
+                    ) for item in order_item]
+
+                OrderItem.objects.bulk_create(order_item_list)
+
+                order.price = order.order_items.all().aggregate(Sum("price"))["price__sum"]
+                order.save()
+
+                return JsonResponse({'MESSAGE':'SUCCESS'}, status=201)
+
+        except KeyError:
+            return JsonResponse({'MESSAGE':'KEY_ERROR'}, status=400)
+
+        except IntegrityError:
+            return JsonResponse({'MESSAGE':'INTEGRITY_ERROR'}, status=400)
