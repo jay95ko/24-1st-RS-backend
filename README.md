@@ -22,13 +22,9 @@
 
 
 <div id=header align="center">
-  <img src="![image](https://user-images.githubusercontent.com/76927263/132832653-409f53c8-1b69-46c0-b43f-294b41d5006c.png
-)
-">
+  <img src="https://jeju-monthang-jw.s3.ap-northeast-2.amazonaws.com/uploads/guesthouse_photos/Screen_Shot_2021-09-10_at_6.25.00_PM.png">
   <a href=""https://youtu.be/tThYy28aRaU"">
-    <img src="![image](https://user-images.githubusercontent.com/76927263/132832653-409f53c8-1b69-46c0-b43f-294b41d5006c.png
-)
-">
+    <img src="https://jeju-monthang-jw.s3.ap-northeast-2.amazonaws.com/uploads/guesthouse_photos/Screen_Shot_2021-09-10_at_6.25.00_PM.png">
   </a>
 </div>
 
