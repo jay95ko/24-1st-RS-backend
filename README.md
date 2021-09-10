@@ -23,9 +23,7 @@
 
 <div id=header align="center">
   <img src="https://jeju-monthang-jw.s3.ap-northeast-2.amazonaws.com/uploads/guesthouse_photos/Screen_Shot_2021-09-10_at_6.25.00_PM.png">
-  <a href=""https://youtu.be/tThYy28aRaU"">
-    <img src="https://jeju-monthang-jw.s3.ap-northeast-2.amazonaws.com/uploads/guesthouse_photos/Screen_Shot_2021-09-10_at_6.25.00_PM.png">
-  </a>
+  <a href="https://youtu.be/tThYy28aRaU">시연 영상 보러가기</a>
 </div>
 
 <br>
@@ -132,44 +130,3 @@
 
 <br>
 
-
-## 📚 Tech Stack
-
-<div id=tech_stack>
-  <table style="text-align:center;">
-    <tr>
-      <th>ALL</th>
-    </tr>
-    <tr>
-      <td>
-        <img src="https://img.shields.io/badge/Git-gray?style=plastic&logo=git">
-        <img src="https://img.shields.io/badge/GitHub-gray?style=plastic&logo=github">
-        <img src="https://img.shields.io/badge/Google_Drive-gray?style=plastic&logo=google-drive"><br>
-        <img src="https://img.shields.io/badge/Jupyter-v1.0.0-orange?style=plastic&logo=jupyter">
-        <img src="https://img.shields.io/badge/VSCode-v1.56.2-blue?style=plastic&logo=visual-studio-code">
-        <img src="https://img.shields.io/badge/Google_Colab-gray?style=plastic&logo=google-colab"><br>
-        <img src="https://img.shields.io/badge/Flask-v2.0.1-lightgray?style=plastic&logo=flask">
-        <img src="https://img.shields.io/badge/Javascript-ES6+-yellow?style=plastic&logo=javascript">
-        <img src="https://img.shields.io/badge/MySQL-v15.1-blue?style=plastic&logo=mysql">
-        <img src="https://img.shields.io/badge/MariaDB-v10.5.10-navy?style=plastic&logo=mariadb">
-      </td>
-    </tr>
-  </table>
-  <table style="text-align:center;">
-      <th>FrontEnd</th>
-      <th>Back_End</th>
-    </tr>
-    <tr>
-      <td>
-        <img src="https://img.shields.io/badge/AWS-gray?style=plastic&logo=amazon-aws"><br>
-        <img src="https://img.shields.io/badge/Docker-v19.03.11-blue?style=plastic&logo=docker">
-      </td>
-      <td>
-        <img src="https://img.shields.io/badge/Raspberry_Pi-red?style=plastic&logo=raspberry-pi"><br>
-        <img src="https://img.shields.io/badge/Ubuntu-v20.10-orange?style=plastic&logo=ubuntu">
-      </td>
-    </tr>
-  </table>
-</div>
-
-<br>
