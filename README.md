@@ -23,7 +23,7 @@
 
 <div id=header align="center">
   <img src="#">
-  <a href="#">
+  <a href=""https://youtu.be/tThYy28aRaU"">
     <img src="#">
   </a>
 </div>
@@ -42,6 +42,8 @@
 
 
 ## 🎞 시연 영상
+
+<a href="https://youtu.be/tThYy28aRaU">주담화 클론코딩 시연 영상</a>
 
 
 ## 📅 Plan
